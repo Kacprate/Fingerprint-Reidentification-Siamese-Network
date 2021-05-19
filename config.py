@@ -1,10 +1,10 @@
 class Config:
-    input_dims = [256, 256]
-    latent_size = 128
+    latent_size = 1024
 
-    data_folder = 'data/data_to_train'
+    data_folder = './data/enhanced'
+    saved_models_folder = './saved_models'
 
     # training
-    epochs = 10
-    batch_size = 64
+    epochs = 3
+    batch_size = 32
     lr = 0.001
