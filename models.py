@@ -2,13 +2,13 @@ import torch
 import torch.nn as nn
 
 class Encoder(nn.Module):
-    def __init__(self, config, device):
+    def __init__(self, config):
         super().__init__()
 
         self.config = config
 
         self.model = nn.Sequential(
-            nn.Conv2d(in_channels=3, out_channels=32, kernel_size=3),
+            nn.Conv2d(in_channels=1, out_channels=32, kernel_size=3),
             nn.ReLU(inplace=True),
 
             nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3),
@@ -16,27 +16,31 @@ class Encoder(nn.Module):
 
             nn.MaxPool2d(kernel_size=2, stride=2),
             
-            nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3),
+            nn.Conv2d(in_channels=64, out_channels=128, kernel_size=5),
             nn.ReLU(inplace=True),
             
-            nn.Conv2d(in_channels=128, out_channels=256, kernel_size=3),
+            nn.Conv2d(in_channels=128, out_channels=32, kernel_size=5),
             nn.ReLU(inplace=True),
+
+            nn.MaxPool2d(kernel_size=2, stride=2),
         )
 
         self.fc = nn.Sequential(
-            nn.Linear(256, self.config.latent_size, bias=True),
+            nn.Linear(32 * 59 * 59, self.config.latent_size, bias=True),
             nn.ReLU(inplace=True)
         )
 
     def forward(self, x):
         x = self.model(x)
-        x = x.max(dim=1)[0]
+        # x, indices = torch.max(x, dim=3)
+        x = x.view(self.config.batch_size, -1)
         x = self.fc(x)
         return x
 
 class SiameseNetwork(nn.Module):
-    def __init__(self, config, device):
+    def __init__(self, config):
         super().__init__()
+        self.config = config
 
         self.model = nn.Sequential(
             nn.Linear(self.config.latent_size * 2, 1024, bias=True),
@@ -58,7 +62,7 @@ class SiameseNetwork(nn.Module):
             nn.ReLU(inplace=True),
 
             nn.Linear(32, 1, bias=True),
-            nn.Sigmoid(inplace=True),
+            nn.Sigmoid(),
         )
 
     def forward(self, x1, x2):
