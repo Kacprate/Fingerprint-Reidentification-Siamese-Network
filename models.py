@@ -12,6 +12,8 @@ class Encoder(nn.Module):
             nn.BatchNorm2d(num_features=32),
             nn.ReLU(inplace=True),
 
+            nn.MaxPool2d(kernel_size=2, stride=2),
+
             nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3),
             nn.BatchNorm2d(num_features=64),
             nn.ReLU(inplace=True),
@@ -21,6 +23,8 @@ class Encoder(nn.Module):
             nn.Conv2d(in_channels=64, out_channels=128, kernel_size=5),
             nn.BatchNorm2d(num_features=128),
             nn.ReLU(inplace=True),
+
+            nn.MaxPool2d(kernel_size=2, stride=2),
             
             nn.Conv2d(in_channels=128, out_channels=256, kernel_size=5),
             nn.BatchNorm2d(num_features=256),
@@ -30,8 +34,12 @@ class Encoder(nn.Module):
         )
 
         self.fc = nn.Sequential(
-            nn.Linear(256 * 27 * 27, 1024, bias=True),
+            # nn.Linear(256 * 4 * 4, 512, bias=True),
+            nn.Linear(256 * 6 * 6, 1024, bias=True),
             nn.ReLU(inplace=True),
+
+            # nn.Linear(512, 256, bias=True),
+            # nn.ReLU(inplace=True),
 
             nn.Linear(1024, self.config.latent_size, bias=True),
             nn.ReLU(inplace=True)
@@ -55,12 +63,15 @@ class SiameseNetwork(nn.Module):
             nn.ReLU(inplace=True),
 
             nn.Linear(256, 128, bias=True),
+            nn.BatchNorm1d(num_features=128),
             nn.ReLU(inplace=True),
 
             nn.Linear(128, 64, bias=True),
+            nn.BatchNorm1d(num_features=64),
             nn.ReLU(inplace=True),
 
             nn.Linear(64, 32, bias=True),
+            nn.BatchNorm1d(num_features=32),
             nn.ReLU(inplace=True),
 
             nn.Linear(32, 1, bias=True),
