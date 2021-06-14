@@ -89,7 +89,7 @@ with torch.no_grad():
         img1, img2 = original_batch[index1].unsqueeze(0), original_batch[index2].unsqueeze(0)
 
         features1, features2 = encoder(img1), encoder(img2)
-        result = siamese_network(features1, features2)
+        result = siamese_network(features1, features2)        
         image[index1, index2] = result.item()
 
     print(image.shape)
