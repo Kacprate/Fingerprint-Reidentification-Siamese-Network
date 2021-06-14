@@ -38,7 +38,7 @@ transform = transforms.Compose([
     transforms.ToTensor()
 ])
 train_data = torchvision.datasets.ImageFolder(config.data_folder, transform=transform)
-train_data_loader = DataLoader(train_data, batch_size=batch_size, shuffle=False)
+train_data_loader = DataLoader(train_data, batch_size=batch_size, shuffle=True)
 
 transform2 = transforms.Compose([
     transforms.RandomCrop(size=128),
@@ -50,36 +50,45 @@ with torch.no_grad():
         batch = batch[0]
         break
 
-    batch = batch.to(device)
-    batch = transform2(batch)
     original_batch = batch.clone()
+    
+    original_batch = original_batch.to(device)
+    # batch = batch.to(device)
 
-    print('test')
-    print('the same images')
-    img1 = batch[0]
-    features, decoded_img = autoencoder(img1.unsqueeze(0))
+    # batch = transform2(batch)
 
-    img1 = img1.permute(1, 2, 0).cpu().numpy()
-    cv2.imshow('original', img1)
+    # print('test')
+    # print('the same images')
+    # img1 = batch[0]
+    # features, decoded_img = autoencoder(img1.unsqueeze(0))
 
-    img2 = decoded_img.squeeze(0).permute(1, 2, 0).cpu().numpy()
-    cv2.imshow('reconstruction', img2)
-    cv2.waitKey(0)
+    # img1 = img1.permute(1, 2, 0).cpu().numpy()
+    # cv2.imshow('original', img1)
+
+    # img2 = decoded_img.squeeze(0).permute(1, 2, 0).cpu().numpy()
+    # cv2.imshow('reconstruction', img2)
+    # cv2.waitKey(0)
 
 
-    original_batch.to(device)
     original_batch = transform2(original_batch)
 
     image = np.empty(shape=(batch_size, batch_size))
-    for index1, index2 in itertools.product(range(batch_size), range(batch_size)):
-        img1, img2 = original_batch[index1].unsqueeze(0), original_batch[index2].unsqueeze(0)
 
-        features1, reconstruction1 = autoencoder(img1)
-        features2, reconstruction2 = autoencoder(img2)
+    for index1 in range(batch_size):
+        for index2 in range(batch_size):
+            img1 = original_batch[index1]
+            img2 = original_batch[index2]
 
-        result = siamese_network(features1, features2).item()
-        result = 1 if result >= threshold else 0
-        image[index1, index2] = result
+            features1, reconstruction1 = autoencoder(img1.unsqueeze(0))
+            features2, reconstruction2 = autoencoder(img2.unsqueeze(0))
+
+            result = siamese_network(features1, features2).item()
+
+            if index1 == index2:
+                print(result)
+
+            result = 1 if result >= threshold else 0
+            image[index1, index2] = result
 
     print(image.shape)
     print(image)

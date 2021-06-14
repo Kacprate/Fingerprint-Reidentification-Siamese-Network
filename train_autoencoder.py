@@ -86,6 +86,14 @@ for epoch in range(1, epochs + 1):
         output = torch.cat((good_pairs, bad_pairs))
         target = torch.cat((good_target, bad_target))
 
+        print(output[:10])
+        print(target[:10])
+
+        print(output[-10:])
+        print(target[-10:])
+
+        raise Exception
+
 
 
         # print(output[:10], output[-10:])
@@ -93,7 +101,7 @@ for epoch in range(1, epochs + 1):
         siamese_loss = loss_function(output, target)
 
         epoch_loss_autoencoder += ae_loss.item()
-        epoch_loss_siamese = siamese_loss.item()
+        epoch_loss_siamese += siamese_loss.item()
 
         loss = siamese_loss + ae_loss
         # loss = loss_function(img_batch, decoded_img)
