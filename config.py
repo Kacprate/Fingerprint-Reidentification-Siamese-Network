@@ -10,3 +10,5 @@ class Config:
     lr = 0.001
     save_frequency = 25
     load_model = True
+
+    track_running_stats = True

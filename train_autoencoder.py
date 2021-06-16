@@ -16,8 +16,8 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 autoencoder = AutoEncoder(config)
 siamese_network = SiameseNetwork(config)
 
-autoencoder_file = '/autoencoder_epoch125_loss0.9346.pth'
-siamese_file = '/siamese_network_epoch125_loss0.9346.pth'
+autoencoder_file = '/autoencoder_epoch175_loss1.1991.pth'
+siamese_file = '/siamese_network_epoch175_loss1.1991.pth'
 
 if config.load_model:
     autoencoder.load_state_dict(torch.load(config.saved_models_folder + autoencoder_file))
@@ -40,7 +40,7 @@ transform = transforms.Compose([
     transforms.ToTensor(),
 ])
 train_data = torchvision.datasets.ImageFolder(config.data_folder, transform=transform)
-train_data_loader = DataLoader(train_data, batch_size=config.batch_size, shuffle=True)
+train_data_loader = DataLoader(train_data, batch_size=config.batch_size, shuffle=True, drop_last=True)
 
 transform2 = transforms.Compose([
     transforms.RandomCrop(size=128),
@@ -80,11 +80,14 @@ for epoch in range(1, epochs + 1):
         good_pairs = siamese_network(features, features2)
         bad_pairs = siamese_network(features, bad_features)
 
+        # print(siamese_network.model[1].running_mean)
+
+
         good_target = torch.ones_like(good_pairs)
         bad_target = torch.zeros_like(bad_pairs)
 
-        output = torch.cat((good_pairs, bad_pairs))
-        target = torch.cat((good_target, bad_target))
+        output = torch.cat((good_pairs, bad_pairs), 0)
+        target = torch.cat((good_target, bad_target), 0)
 
         print(output[:10])
         print(target[:10])

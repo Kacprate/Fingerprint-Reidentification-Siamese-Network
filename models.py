@@ -61,19 +61,19 @@ class AutoEncoder(nn.Module):
 
         self.encoder = nn.Sequential(
             nn.Conv2d(in_channels=1, out_channels=32, kernel_size=3),
-            nn.BatchNorm2d(num_features=32),
+            nn.BatchNorm2d(num_features=32, track_running_stats=self.config.track_running_stats),
             nn.ReLU(inplace=True),
 
             nn.MaxPool2d(kernel_size=2, stride=2),
 
             nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3),
-            nn.BatchNorm2d(num_features=64),
+            nn.BatchNorm2d(num_features=64, track_running_stats=self.config.track_running_stats),
             nn.ReLU(inplace=True),
 
             nn.MaxPool2d(kernel_size=2, stride=2),
             
             nn.Conv2d(in_channels=64, out_channels=128, kernel_size=5),
-            nn.BatchNorm2d(num_features=128),
+            nn.BatchNorm2d(num_features=128, track_running_stats=self.config.track_running_stats),
             nn.ReLU(inplace=True),
 
             nn.MaxPool2d(kernel_size=2, stride=2)
@@ -83,13 +83,13 @@ class AutoEncoder(nn.Module):
             nn.Upsample(scale_factor=2),
 
             nn.ConvTranspose2d(in_channels=128, out_channels=64, kernel_size=5),
-            nn.BatchNorm2d(num_features=64),
+            nn.BatchNorm2d(num_features=64, track_running_stats=self.config.track_running_stats),
             nn.ReLU(inplace=True),
 
             nn.Upsample(scale_factor=2),
 
             nn.ConvTranspose2d(in_channels=64, out_channels=32, kernel_size=3),
-            nn.BatchNorm2d(num_features=32),
+            nn.BatchNorm2d(num_features=32, track_running_stats=self.config.track_running_stats),
             nn.ReLU(inplace=True),
 
             nn.Upsample(scale_factor=2),
@@ -113,7 +113,6 @@ class AutoEncoder(nn.Module):
         latent = self.fc(latent)
         
         return latent, decoded_image
-
 class SiameseNetwork(nn.Module):
     def __init__(self, config):
         super().__init__()
@@ -121,29 +120,29 @@ class SiameseNetwork(nn.Module):
 
         self.model = nn.Sequential(
             nn.Linear(self.config.latent_size, 1024, bias=True),
-            nn.BatchNorm1d(num_features=1024),
+            nn.BatchNorm1d(num_features=1024, track_running_stats=self.config.track_running_stats),
             nn.ReLU(inplace=True),
 
             nn.Linear(1024, 512, bias=True),
-            nn.BatchNorm1d(num_features=512),
+            nn.BatchNorm1d(num_features=512, track_running_stats=self.config.track_running_stats),
             nn.ReLU(inplace=True),
 
             nn.Linear(512, 512, bias=True),
-            nn.BatchNorm1d(num_features=512),
+            nn.BatchNorm1d(num_features=512, track_running_stats=self.config.track_running_stats),
             nn.ReLU(inplace=True)
         )
 
         self.compare = nn.Sequential(
             nn.Linear(512 * 2, 512, bias=True),
-            nn.BatchNorm1d(num_features=512),
+            nn.BatchNorm1d(num_features=512, track_running_stats=self.config.track_running_stats),
             nn.ReLU(inplace=True),
 
             nn.Linear(512, 256, bias=True),
-            nn.BatchNorm1d(num_features=256),
+            nn.BatchNorm1d(num_features=256, track_running_stats=self.config.track_running_stats),
             nn.ReLU(inplace=True),
 
             nn.Linear(256, 64, bias=True),
-            nn.BatchNorm1d(num_features=64),
+            nn.BatchNorm1d(num_features=64, track_running_stats=self.config.track_running_stats),
             nn.ReLU(inplace=True),
 
             nn.Linear(64, 1, bias=True),
